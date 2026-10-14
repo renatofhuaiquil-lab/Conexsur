@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/bricolage-grotesque";
+
+/* Paleta inspirada en el sur de Chile: fiordo, lago, niebla, copihue, coihue. */
+@theme {
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Figtree Variable", ui-sans-serif, sans-serif;
+
+  --color-fiordo-950: #0a1f2c;
+  --color-fiordo-900: #0f2b3d;
+  --color-fiordo-800: #173b52;
+  --color-fiordo-700: #20506b;
+
+  --color-niebla-50: #f4f7f8;
+  --color-niebla-100: #e9eff1;
+  --color-niebla-200: #d8e2e6;
+  --color-niebla-300: #bccbd2;
+
+  --color-pizarra-500: #566d7b;
+  --color-pizarra-700: #34495a;
+  --color-pizarra-900: #14232e;
+
+  --color-lago-50: #e4f4f3;
+  --color-lago-100: #c5e8e5;
+  --color-lago-500: #14938c;
+  --color-lago-600: #0e7c76;
+  --color-lago-700: #0b635f;
+
+  --color-copihue-50: #fcebee;
+  --color-copihue-600: #c0334a;
+  --color-ambar-50: #fbf1dc;
+  --color-ambar-600: #9a600a;
+  --color-coihue-50: #e5f3ea;
+  --color-coihue-600: #25784a;
+  --color-lluvia-50: #e8ebf8;
+  --color-lluvia-600: #4a5db8;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); background: var(--color-niebla-50); color: var(--color-pizarra-900); }
+.font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+.cifras { font-variant-numeric: tabular-nums; }
+
+/* Foco visible para navegación con teclado */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-lago-500);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@keyframes entra-derecha { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.entra-derecha { animation: entra-derecha .18s ease-out; }

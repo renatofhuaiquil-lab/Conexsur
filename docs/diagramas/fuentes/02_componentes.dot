@@ -1,0 +1,35 @@
+digraph G {
+  rankdir=TB; fontname="DejaVu Sans"; nodesep=0.35; ranksep=0.6; dpi=170; compound=true;
+  node [fontname="DejaVu Sans", fontsize=10.5, shape=box, style="filled", fillcolor="#FFFFFF", color="#44546A"];
+  edge [fontname="DejaVu Sans", fontsize=9, color="#44546A"];
+  labelloc=t; label="Diagrama de componentes — CONEXSUR"; fontsize=15;
+
+  subgraph cluster_front {
+    label="Cliente web (React + Tailwind, PWA)"; style="filled,rounded"; fillcolor="#EAF3FB"; color="#1C6FB0";
+    f_router [label="Enrutador y guardas\npor rol"];
+    f_admin [label="Panel administrativo\n(clientes, calendario)"];
+    f_portal [label="Portal del cliente\n(plan, agenda, pagos)"];
+    f_api [label="Capa de acceso a la API\n(fetch + manejo de errores)"];
+    f_router -> f_admin; f_router -> f_portal; f_admin -> f_api; f_portal -> f_api;
+  }
+  subgraph cluster_back {
+    label="Servidor API (Node.js + Express)"; style="filled,rounded"; fillcolor="#EEF5EA"; color="#548235";
+    b_mw [label="Middlewares transversales\nhelmet · CORS · límite de tasa\nautenticación JWT · autorización por rol\nvalidación (zod) · manejo de errores", fillcolor="#E2EFDA"];
+    subgraph cluster_mod {
+      label="Módulos (rutas → controlador → servicio → repositorio)"; style="rounded,dashed"; color="#548235";
+      m_auth [label="auth"]; m_cli [label="clientes"]; m_vis [label="visitas"];
+      m_bol [label="boletas"]; m_pag [label="pagos"];
+    }
+    b_mp [label="Adaptador Mercado Pago\n(preferencias, consulta de pago,\nverificación de firma)", fillcolor="#FFF2CC", color="#BF9000"];
+    b_db [label="Acceso a datos (pg)\nconsultas parametrizadas · transacciones"];
+    b_mw -> m_auth; b_mw -> m_cli; b_mw -> m_vis; b_mw -> m_bol; b_mw -> m_pag;
+    m_pag -> b_mp;
+    m_auth -> b_db; m_cli -> b_db; m_vis -> b_db; m_bol -> b_db; m_pag -> b_db;
+  }
+  db [label="PostgreSQL 16", shape=cylinder, fillcolor="#DCEBF7", color="#1C6FB0"];
+  mp [label="API de Mercado Pago\n(Checkout Pro)", fillcolor="#FFF2CC", color="#BF9000"];
+  f_api -> b_mw [label="HTTPS / JSON\ncookie httpOnly", lhead=cluster_back];
+  b_db -> db [label="SQL"];
+  b_mp -> mp [label="HTTPS"];
+  mp -> b_mw [label="notificación (webhook)", style=dashed, constraint=false];
+}

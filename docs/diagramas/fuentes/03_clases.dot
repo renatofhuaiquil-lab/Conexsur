@@ -1,0 +1,39 @@
+digraph G {
+  rankdir=TB; fontname="DejaVu Sans"; nodesep=0.5; ranksep=0.8; dpi=170; splines=true; newrank=true;
+  node [fontname="DejaVu Sans", fontsize=10, shape=plaintext];
+  edge [fontname="DejaVu Sans", fontsize=9, color="#44546A", arrowhead=none];
+  labelloc=t; label="Diagrama de clases (dominio) — CONEXSUR"; fontsize=15;
+
+  Usuario [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#DCEBF7"><b>Usuario</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- correo: string<br align="left"/>- claveHash: string<br align="left"/>- rol: Rol<br align="left"/>- activo: boolean<br align="left"/>- intentosFallidos: int<br align="left"/>- bloqueadoHasta: Date<br align="left"/></td></tr><hr/>
+   <tr><td align="left">+ autenticar(clave): boolean<br align="left"/>+ estaBloqueado(): boolean<br align="left"/>+ registrarFallo(): void<br align="left"/>+ tienePermiso(accion): boolean<br align="left"/></td></tr></table>>];
+  Cliente [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#DCEBF7"><b>Cliente</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- rut: string<br align="left"/>- nombre: string<br align="left"/>- direccion: string<br align="left"/>- comuna: string<br align="left"/>- estadoServicio: EstadoServicio<br align="left"/></td></tr><hr/>
+   <tr><td align="left">+ cambiarEstado(estado, por: Usuario): void<br align="left"/>+ validarRut(): boolean<br align="left"/>+ boletaPendiente(): Boleta<br align="left"/></td></tr></table>>];
+  Plan [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#DCEBF7"><b>Plan</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- nombre: string<br align="left"/>- velocidadMbps: int<br align="left"/>- precioClp: int<br align="left"/>- activo: boolean<br align="left"/></td></tr></table>>];
+  Visita [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#DCEBF7"><b>Visita</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- numero: number<br align="left"/>- tipo: TipoVisita<br align="left"/>- motivo: string<br align="left"/>- inicio: Date<br align="left"/>- fin: Date<br align="left"/>- estado: EstadoVisita<br align="left"/></td></tr><hr/>
+   <tr><td align="left">+ confirmar(tecnico: Usuario): void<br align="left"/>+ cancelar(): void<br align="left"/>+ seCruzaCon(otra: Visita): boolean<br align="left"/></td></tr></table>>];
+  Boleta [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#DCEBF7"><b>Boleta</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- periodo: Date<br align="left"/>- montoClp: int<br align="left"/>- vencimiento: Date<br align="left"/>- estado: EstadoBoleta<br align="left"/></td></tr><hr/>
+   <tr><td align="left">+ estaVencida(hoy): boolean<br align="left"/>+ diasParaVencer(hoy): int<br align="left"/>+ marcarPagada(): void<br align="left"/></td></tr></table>>];
+  Pago [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#FFF2CC"><b>Pago</b></td></tr><hr/>
+   <tr><td align="left">- id: UUID<br align="left"/>- montoClp: int<br align="left"/>- estado: EstadoPago<br align="left"/>- referenciaExterna: UUID<br align="left"/>- mpPreferenciaId: string<br align="left"/>- mpPagoId: string<br align="left"/>- confirmadoEn: Date<br align="left"/></td></tr><hr/>
+   <tr><td align="left">+ asociarPreferencia(id): void<br align="left"/>+ confirmar(mpPagoId): void<br align="left"/>+ rechazar(): void<br align="left"/>+ yaProcesado(): boolean<br align="left"/></td></tr></table>>];
+  Evento [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#FFF2CC"><b>EventoMercadoPago</b></td></tr><hr/>
+   <tr><td align="left">- id: long<br align="left"/>- idSolicitud: string<br align="left"/>- carga: JSON<br align="left"/>- firmaValida: boolean<br align="left"/>- procesado: boolean<br align="left"/></td></tr></table>>];
+  Auditoria [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="3" bgcolor="#FFFFFF"><tr><td bgcolor="#E2EFDA"><b>Auditoria</b></td></tr><hr/>
+   <tr><td align="left">- id: long<br align="left"/>- accion: string<br align="left"/>- entidad: string<br align="left"/>- detalle: JSON<br align="left"/>- creadoEn: Date<br align="left"/></td></tr></table>>];
+
+  Usuario -> Cliente [label="1   0..1\ncuenta de acceso", headlabel="", taillabel=""];
+  Plan -> Cliente [label="0..1   *\ncontrata", dir=none];
+  Cliente -> Visita [label="1   *\nsolicita", arrowhead=none];
+  Usuario -> Visita [label="0..1   *\ntécnico asignado"];
+  Cliente -> Boleta [label="1   *\nrecibe"];
+  Boleta -> Pago [label="1   *\nse paga con"];
+  Pago -> Evento [label="notificaciones\nasociadas", style=dashed, arrowhead=open];
+  Usuario -> Auditoria [label="1   *\nregistra", style=dashed, arrowhead=open];
+  {rank=same; Usuario; Plan; Auditoria}
+  {rank=same; Visita; Boleta; Pago; Evento}
+}

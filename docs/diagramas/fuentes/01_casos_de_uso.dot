@@ -1,0 +1,38 @@
+digraph G {
+  rankdir=LR; fontname="DejaVu Sans"; nodesep=0.35; ranksep=1.3; splines=true; dpi=170;
+  node [fontname="DejaVu Sans", fontsize=11]; edge [fontname="DejaVu Sans", fontsize=9, arrowhead=none, color="#44546A"];
+  labelloc=t; label="Diagrama de casos de uso — CONEXSUR (alcance MVP)"; fontsize=15;
+
+  node [shape=box, style="filled,rounded", fillcolor="#DCEBF7", color="#1C6FB0"];
+  admin [label="Administrador"]; tec [label="Técnico"]; cli [label="Cliente"];
+  mp [label="Mercado Pago\n(sistema externo)", fillcolor="#FFF2CC", color="#BF9000"];
+
+  subgraph cluster_sis {
+    label="Sistema CONEXSUR"; style="rounded"; color="#0B2942"; fontsize=12;
+    node [shape=ellipse, style=filled, fillcolor="#FFFFFF", color="#0B2942"];
+    uc_login [label="HU-01\nIniciar sesión según rol"];
+    uc_reg [label="HU-03\nRegistrar cliente"];
+    uc_ficha [label="HU-04\nConsultar ficha del cliente"];
+    uc_estado [label="Cambiar estado del servicio\n(Activo / Cortado)"];
+    uc_sol [label="HU-07\nSolicitar visita técnica"];
+    uc_cal [label="HU-08\nVer calendario técnico semanal"];
+    uc_asig [label="HU-09\nAsignar técnico y confirmar visita"];
+    uc_plan [label="HU-12\nVer estado del plan"];
+    uc_bol [label="HU-13\nVer boleta pendiente"];
+    uc_pagar [label="HU-14\nPagar con Checkout Pro"];
+    uc_pref [label="Crear preferencia de pago\nen el servidor"];
+    uc_conf [label="HU-15\nConfirmar pago por\nnotificación verificada"];
+    uc_ver [label="Consultar estado del pago\nen la API de Mercado Pago"];
+    uc_cruce [label="Validar cruce de horario\ndel técnico"];
+  }
+  admin -> uc_login; tec -> uc_login; cli -> uc_login;
+  admin -> uc_reg; admin -> uc_ficha; admin -> uc_cal; admin -> uc_asig;
+  tec -> uc_cal;
+  cli -> uc_sol; cli -> uc_plan; cli -> uc_bol; cli -> uc_pagar;
+  mp -> uc_pagar; mp -> uc_conf; mp -> uc_ver;
+  edge [arrowhead=open, style=dashed];
+  uc_estado -> uc_ficha [label="«extend»"];
+  uc_pagar -> uc_pref [label="«include»"];
+  uc_conf -> uc_ver [label="«include»"];
+  uc_asig -> uc_cruce [label="«include»"];
+}

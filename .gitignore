@@ -1,0 +1,8 @@
+node_modules
+dist
+*.log
+# Secretos: nunca se suben. Solo se versionan los archivos de ejemplo.
+.env
+.env.*
+!.env.example
+!.env.test.example

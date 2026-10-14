@@ -1,0 +1,47 @@
+# Orquestación de CONEXSUR: base de datos, API y cliente web (Nginx).
+# Uso: cp .env.example .env  (completar)  y luego  docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USUARIO}
+      POSTGRES_PASSWORD: ${DB_CLAVE}
+      POSTGRES_DB: ${DB_NOMBRE}
+    volumes:
+      - datos_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USUARIO} -d ${DB_NOMBRE}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Sin "ports": la base de datos no se expone fuera de la red interna.
+
+  api:
+    build: ./server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PUERTO: 3000
+      DATABASE_URL: postgresql://${DB_USUARIO}:${DB_CLAVE}@db:5432/${DB_NOMBRE}
+      JWT_SECRETO: ${JWT_SECRETO}
+      JWT_EXPIRA_HORAS: 8
+      ORIGEN_CLIENTE: ${ORIGEN_CLIENTE}
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN:-}
+      MP_WEBHOOK_SECRETO: ${MP_WEBHOOK_SECRETO:-}
+    # Aplica las migraciones y luego inicia la API.
+    command: ["sh", "-c", "node src/db/migrar.js && node src/index.js"]
+
+  web:
+    build: ./client
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+volumes:
+  datos_pg:

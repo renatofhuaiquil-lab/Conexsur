@@ -1,0 +1,27 @@
+digraph G {
+  rankdir=TB; fontname="DejaVu Sans"; nodesep=0.5; ranksep=0.7; dpi=170; compound=true;
+  node [fontname="DejaVu Sans", fontsize=10.5, shape=box, style="filled", fillcolor="#FFFFFF", color="#44546A"];
+  edge [fontname="DejaVu Sans", fontsize=9, color="#44546A"];
+  labelloc=t; label="Diagrama de despliegue — CONEXSUR"; fontsize=15;
+
+  subgraph cluster_disp {
+    label="«dispositivo» Equipo del usuario"; style="filled,rounded"; fillcolor="#F2F2F2"; color="#7F7F7F";
+    nav [label="Navegador web / PWA instalada\n(Chrome, Safari)\nReact + Tailwind"];
+  }
+  subgraph cluster_srv {
+    label="«servidor» Servidor de aplicación (VPS o plataforma PaaS) — Docker Compose"; style="filled,rounded"; fillcolor="#EAF3FB"; color="#1C6FB0";
+    proxy [label="«contenedor» proxy\nNginx\nTLS (HTTPS) · archivos estáticos del cliente", fillcolor="#DCEBF7"];
+    api [label="«contenedor» api\nNode.js 22 + Express\npuerto interno 3000", fillcolor="#E2EFDA"];
+    db [label="«contenedor» db\nPostgreSQL 16\nvolumen persistente + respaldo diario", shape=cylinder, fillcolor="#DCEBF7"];
+    proxy -> api [label="HTTP interno\n/api/*"];
+    api -> db [label="TCP 5432\nred interna"];
+  }
+  subgraph cluster_ext {
+    label="«servicio externo»"; style="filled,rounded"; fillcolor="#FFF8E1"; color="#BF9000";
+    mp [label="Mercado Pago\nCheckout Pro + API de pagos", fillcolor="#FFF2CC", color="#BF9000"];
+  }
+  nav -> proxy [label="HTTPS 443"];
+  api -> mp [label="HTTPS\ncrear preferencia / consultar pago"];
+  nav -> mp [label="redirección al pago\n(Checkout Pro)", style=dashed, constraint=false];
+  mp -> proxy [label="webhook HTTPS\n/api/pagos/webhook", style=dashed, constraint=false];
+}
